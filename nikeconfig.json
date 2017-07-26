@@ -1,0 +1,13 @@
+{
+	"getsmsemail":"..............@gmail.com",
+	"getsmstoken":"............................",
+	"nikeaccountname":"Sonya Roy",
+	"nikemainemail":"sonyaroy75@gmail.com",
+	"nikeaccountpassword":"SoNyArOy75",
+	"maxaccounts":1000,
+	"savetofile":"nikeemails.txt",
+	"maxthreads":100,
+	"proxyfilename":"proxylist.txt",
+	"nikeaccountcountry":"US",
+	"minintervalbetweenrequests":1
+}
