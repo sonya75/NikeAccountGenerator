@@ -3,6 +3,7 @@
 	"getsmstoken":"............................",
 	"nikeaccountname":"Sonya Roy",
 	"nikemainemail":"sonyaroy75@gmail.com",
+	"useowndomain":false,
 	"nikeaccountpassword":"SoNyArOy75",
 	"maxaccounts":1000,
 	"savetofile":"nikeemails.txt",
