@@ -188,6 +188,7 @@ def verifyEmail(email,usedom=False):
 		if usedom:
 			if email[0]!="@":
 				raise Exception("If you want to use your own domain, enter @domain in nikemainemail\nFor example, @nike.com if you want to use emails from domain nike.com")
+			return
 	except TypeError:
 		raise Exception("Invalid entry for nikemainemail")
 	try:
