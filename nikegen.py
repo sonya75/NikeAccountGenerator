@@ -6,6 +6,7 @@ from threading import Thread,Lock
 import json
 import time
 import re
+import names
 import math
 import Queue
 import click
@@ -50,7 +51,9 @@ def verifyinfo():
 		print m.text+"\n",
 		print "Invalid info entered for getsmscode.com\n",
 		exit()
-def generateemail(email,maxval=1):
+def generateemail(email,maxval=1,usedom=False):
+	if usedom:
+		return names.get_first_name()+str(random.randint(1,999999))+email
 	em=email.split("@")
 	em1=em[0][:-1]
 	vt=2**len(em1)
@@ -136,8 +139,9 @@ def signup(email,NUMBER,name,password,country):
 	d=sess.post("https://idn.nike.com/idn/phone/{0}".format(code),headers={"Authorization":"Bearer "+TOKEN},verify=False,proxies={"https":prox})
 	return password
 def dosignup(id,name,email,maxq,password,maxal,country):
+	global USEDOMAIN
 	while maxq.qsize()>0:
-		emr=generateemail(email,maxal)
+		emr=generateemail(email,maxal,USEDOMAIN)
 		try:
 			NUMBER=getnumber()
 			if len(NUMBER)!=13:
@@ -179,7 +183,13 @@ def verifyName(nam):
 		raise Exception
 	if re.search("[^a-z|A-Z| ]",nam):
 		raise Exception
-def verifyEmail(email):
+def verifyEmail(email,usedom=False):
+	try:
+		if usedom:
+			if email[0]!="@":
+				raise Exception("If you want to use your own domain, enter @domain in nikemainemail\nFor example, @nike.com if you want to use emails from domain nike.com")
+	except TypeError:
+		raise Exception("Invalid entry for nikemainemail")
 	try:
 		if email[-10:]!="@gmail.com":
 			raise Exception("You need to enter a gmail address")
@@ -202,7 +212,7 @@ def verifyPassword(password):
 	except TypeError:
 		raise Exception("Enter a proper password")
 def getData(x):
-	global GETSMSEMAIL,GETSMSTOKEN,NAME,MAINEMAIL,PASSWORD,MAX,SAVETOFILE,MAXTHREADS,MININTERVAL,PROXYLIST,COUNTRY
+	global GETSMSEMAIL,GETSMSTOKEN,NAME,MAINEMAIL,PASSWORD,MAX,SAVETOFILE,MAXTHREADS,MININTERVAL,PROXYLIST,COUNTRY,USEDOMAIN
 	try:
 		GETSMSEMAIL=x["getsmsemail"]
 	except:
@@ -220,8 +230,12 @@ def getData(x):
 		print "You need to enter the name you want in your nike+ accounts properly"
 		exit()
 	try:
+		USEDOMAIN=(x["useowndomain"]==True)
+	except:
+		USEDOMAIN=False
+	try:
 		MAINEMAIL=x["nikemainemail"]
-		verifyEmail(MAINEMAIL)
+		verifyEmail(MAINEMAIL,USEDOMAIN)
 	except Exception as e:
 		print e
 		exit()
@@ -281,7 +295,10 @@ def getData(x):
 	print "Your getsmscode email address: {0}".format(GETSMSEMAIL)
 	print "Your getsmscode token: {0}".format(GETSMSTOKEN)
 	print "The name you want on your nike accounts: {0}".format(NAME)
-	print "Your main gmail account to use for the nike accounts: {0}".format(MAINEMAIL)
+	if USEDOMAIN:
+		print "The emails you want to use for the nike accounts: *******{0}".format(MAINEMAIL)
+	else:
+		print "Your main gmail account to use for the nike accounts: {0}".format(MAINEMAIL)
 	print "The passwords for the nike+ accounts: {0}".format(PASSWORD)
 	print "The country for the Nike+ accounts: {0}".format(COUNTRY)
 	print "Maximum number of accounts you want to generate: {0}".format(MAX)
