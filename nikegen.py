@@ -137,6 +137,15 @@ def signup(email,NUMBER,name,password,country):
 	print "Submitting code\n",
 	getLock(prox)
 	d=sess.post("https://idn.nike.com/idn/phone/{0}".format(code),headers={"Authorization":"Bearer "+TOKEN},verify=False,proxies={"https":prox})
+	try:
+		getLock(prox)
+		if COUNTRY=="US":
+			url="https://secure-store.nike.com/us/services/profileService"
+		else:
+			url="https://secure-store.nike.com/gb/services/profileService"
+		e=sess.post(url,data={"action":"getprofile","rt":"JSON"},headers={"X-Requested-With":"XMLHttpRequest"},verify=False,proxies={"https":prox})
+	except:
+		pass
 	return password
 def dosignup(id,name,email,maxq,password,maxal,country):
 	global USEDOMAIN
