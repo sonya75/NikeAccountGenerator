@@ -7,7 +7,7 @@
 	"nikeaccountpassword":"SoNyArOy75",
 	"maxaccounts":1000,
 	"savetofile":"nikeemails.txt",
-	"maxthreads":100,
+	"maxthreads":10,
 	"proxyfilename":"proxylist.txt",
 	"nikeaccountcountry":"US",
 	"minintervalbetweenrequests":1
