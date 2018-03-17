@@ -15,19 +15,6 @@ globallock=Lock()
 class NumberException(Exception):
 	pass
 allLocks={}
-def getAppVersion():
-	global APPVERSION,EXPVERSION
-	sess=requests.session()
-	sess.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"})
-	try:
-		d=sess.get("https://s3.nikecdn.com/unite/scripts/unite.min.js")
-		APPVERSION=re.search("\"app-version\"\]\|\|\"([0-9]*)\"",d.text).group(1)
-		EXPVERSION=re.search("\"experience-version\"\]\|\|\"([0-9]*)\"",d.text).group(1)
-		print "Successfully updated nike app version and experience version"
-	except:
-		print "Failed to update app version, using default ones"
-		APPVERSION="291"
-		EXPVERSION="253"
 def getLock(prox):
 	global MININTERVAL
 	allLocks[prox].get()
@@ -83,70 +70,49 @@ def getcode(number):
 	blocknumber("86"+number)
 	raise Exception("Not received sms in time")
 def signup(email,NUMBER,name,password,country):
-	global APPVERSION,EXPVERSION
-	prox=random.choice(PROXYLIST)
-	nam=name.split(' ')
-	sess=requests.session()
-	sess.cookies["CONSUMERCHOICE"]="cn/zh_cn"
-	sess.cookies["NIKE_COMMERCE_COUNTRY"]="CN"
-	sess.cookies["NIKE_COMMERCE_LANG_LOCALE"]="zh_CN"
-	sess.cookies["nike_locale"]="cn/zh_cn"
-	sess.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"})
-	dob=str(random.randint(1990,1995))+"-"+str(random.randint(10,12))+"-"+str(random.randint(10,28))
-	print "Using number: {0}\n".format(NUMBER),
-	if country=="US":
-		payload={"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}},"locale":"en_US","welcomeEmailTemplate":"TSD_PROF_COMM_WELCOME_V1.0","registrationSiteId":"nikedotcom","username":email,"lastName":nam[1],"firstName":nam[0],"dateOfBirth":dob,"country":"US","mobileNumber":NUMBER,"gender":"male","receiveEmail":True}
-	else:
-		payload={"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}},"locale":"en_GB","welcomeEmailTemplate":"TSD_PROF_COMM_WELCOME_V1.0","registrationSiteId":"nikedotcom","username":email,"lastName":nam[1],"firstName":nam[0],"dateOfBirth":dob,"country":"GB","mobileNumber":NUMBER,"gender":"male","receiveEmail":True}
-	getLock(prox)
-	print "Signing up with email {0}\n".format(email),
-	r=sess.post("https://unite.nike.com/join?appVersion={0}&experienceVersion={1}&uxid=com.nike.commerce.nikedotcom.web&locale=zh_CN&backendEnvironment=identity&browser=Google%20Inc.&os=undefined&mobile=false&native=false".format(APPVERSION,EXPVERSION),json=payload,verify=False,proxies={"https":prox})
-	r.raise_for_status()
-	getLock(prox)
-	e=sess.post("https://unite.nike.com/loginWithSetCookie?appVersion={0}&experienceVersion={1}&uxid=com.nike.commerce.nikedotcom.web&locale=zh_CN&backendEnvironment=identity&browser=Google%20Inc.&os=undefined&mobile=false&native=false".format(APPVERSION,EXPVERSION),json={"username":email,"password":password,"client_id":"HlHa2Cje3ctlaOqnxvgZXNaAs7T9nAuH","ux_id":"com.nike.commerce.nikedotcom.web","grant_type":"password"},verify=False,proxies={"https":prox})
-	e.raise_for_status()
-	TOKEN=json.loads(e.text)['access_token']
-	sess1=sess
-	sess=requests.session()
-	print "Logging in with email {0}\n".format(email),
-	if country=="US":
-		sess.cookies["CONSUMERCHOICE"]="us/en_us"
-		sess.cookies["NIKE_COMMERCE_COUNTRY"]="US"
-		sess.cookies["NIKE_COMMERCE_LANG_LOCALE"]="en_US"
-		sess.cookies["nike_locale"]="us/en_US"
-		sess.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"})
-		getLock(prox)
-		e=sess.post("https://unite.nike.com/loginWithSetCookie?appVersion={0}&experienceVersion={1}&uxid=com.nike.commerce.nikedotcom.web&locale=en_US&backendEnvironment=identity&browser=Google%20Inc.&os=undefined&mobile=false&native=false".format(APPVERSION,EXPVERSION),json={"username":email,"password":password,"client_id":"HlHa2Cje3ctlaOqnxvgZXNaAs7T9nAuH","ux_id":"com.nike.commerce.nikedotcom.web","grant_type":"password"},verify=False,proxies={"https":prox})
-		e.raise_for_status()
-	else:
-		sess=requests.session()
-		sess.cookies["CONSUMERCHOICE"]="gb/en_gb"
-		sess.cookies["NIKE_COMMERCE_COUNTRY"]="GB"
-		sess.cookies["NIKE_COMMERCE_LANG_LOCALE"]="en_GB"
-		sess.cookies["nike_locale"]="gb/en_GB"
-		sess.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"})
-		getLock(prox)
-		e=sess.post("https://unite.nike.com/loginWithSetCookie?appVersion={0}&experienceVersion={1}&uxid=com.nike.commerce.nikedotcom.web&locale=en_GB&backendEnvironment=identity&browser=Google%20Inc.&os=undefined&mobile=false&native=false".format(APPVERSION,EXPVERSION),json={"username":email,"password":password,"client_id":"HlHa2Cje3ctlaOqnxvgZXNaAs7T9nAuH","ux_id":"com.nike.commerce.nikedotcom.web","grant_type":"password"},verify=False,proxies={"https":prox})
-		e.raise_for_status()
-	print "Waiting for sms\n",
-	getLock(prox)
-	f=sess1.put("https://idn.nike.com/idn/phone/+86"+NUMBER,headers={"Authorization":"Bearer "+TOKEN,"Referer":"https://www.nike.com/cn/zh_cn/p/settings","Origin":"https://www.nike.com","Content-Locale":"zh_CN"},verify=False,proxies={"https":prox})
-	f.raise_for_status()
-	TOKEN=json.loads(e.text)['access_token']
-	code=getcode(NUMBER)[-6:]
-	print "Submitting code\n",
-	getLock(prox)
-	d=sess.post("https://idn.nike.com/idn/phone/{0}".format(code),headers={"Authorization":"Bearer "+TOKEN},verify=False,proxies={"https":prox})
-	try:
-		getLock(prox)
-		if COUNTRY=="US":
-			url="https://secure-store.nike.com/us/services/profileService"
-		else:
-			url="https://secure-store.nike.com/gb/services/profileService"
-		e=sess.post(url,data={"action":"getprofile","rt":"JSON"},headers={"X-Requested-With":"XMLHttpRequest"},verify=False,proxies={"https":prox})
-	except:
-		pass
-	return password
+    prox=random.choice(PROXYLIST)
+    nam=name.split(' ')
+    sess=requests.session()
+    sess.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36","Accept":"*/*","Accept-Encoding":"gzip, deflate, br","Accept-Language":"en-US,en;q=0.9,ms;q=0.8"})
+    sess.cookies["CONSUMERCHOICE"]="cn/zh_cn"
+    sess.cookies["NIKE_COMMERCE_COUNTRY"]="CN"
+    sess.cookies["NIKE_COMMERCE_LANG_LOCALE"]="zh_CN"
+    sess.cookies["nike_locale"]="cn/zh_cn"
+    dob=str(random.randint(1990,1995))+"-"+str(random.randint(10,12))+"-"+str(random.randint(10,28))
+    print "Using number: {0}\n".format(NUMBER),
+    if country=="US":
+        payload={"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}},"locale":"en_US","welcomeEmailTemplate":"TSD_PROF_MS_WELC_T0_GENERIC_V1.0","registrationSiteId":"nikedotcom","username":email,"firstName":nam[0],"lastName":nam[1],"dateOfBirth":dob,"country":"US","gender":"F","receiveEmail":True}
+    else:
+        payload={"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}},"locale":"en_US","welcomeEmailTemplate":"TSD_PROF_MS_WELC_T0_GENERIC_V1.0","registrationSiteId":"nikedotcom","username":email,"firstName":nam[0],"lastName":nam[1],"dateOfBirth":dob,"country":"GB","gender":"F","receiveEmail":True}
+    getLock(prox)
+    print "Signing up with email {0}\n".format(email),
+    r=sess.post("https://www.nike.com/profile/services/users/",json=payload,verify=False,proxies={"https":prox},timeout=30)
+    logindata = {'keepMeLoggedIn':True, 'client_id':'PbCREuPr3iaFANEDjtiEzXooFl7mXGQ7','ux_id':'com.nike.commerce.snkrs.droid','grant_type':'password','username':email,'password':password}
+    getLock(prox)
+    print "Logging in with email {0}\n".format(email),
+    e=sess.post('https://api.nike.com/idn/shim/oauth/2.0/token',json=logindata,verify=False,proxies={"https":prox},timeout=30)
+    e.raise_for_status()
+    TOKEN=json.loads(e.text)['access_token']
+    print "Waiting for sms\n",
+    getLock(prox)
+    f=sess.put("https://idn.nike.com/idn/phone/+86"+NUMBER,headers={"Authorization":"Bearer "+TOKEN,"Referer":"https://www.nike.com/cn/zh_cn/p/settings","Origin":"https://www.nike.com","Content-Locale":"zh_CN"},verify=False,proxies={"https":prox},timeout=30)
+    f.raise_for_status()
+    TOKEN=json.loads(e.text)['access_token']
+    code=getcode(NUMBER)[-6:]
+    print "Submitting code\n",
+    getLock(prox)
+    d=sess.post("https://idn.nike.com/idn/phone/{0}".format(code),headers={"Authorization":"Bearer "+TOKEN},verify=False,proxies={"https":prox},timeout=30)
+    d.raise_for_status()
+    try:
+        getLock(prox)
+        if COUNTRY=="US":
+            url="https://secure-store.nike.com/us/services/profileService"
+        else:
+            url="https://secure-store.nike.com/gb/services/profileService"
+        e=sess.post(url,data={"action":"getprofile","rt":"JSON"},headers={"X-Requested-With":"XMLHttpRequest"},verify=False,proxies={"https":prox},timeout=30)
+    except:
+        pass
+    return password
 def dosignup(id,name,email,maxq,password,maxal,country):
 	global USEDOMAIN
 	while maxq.qsize()>0:
@@ -323,7 +289,6 @@ if __name__=="__main__":
 	except:
 		print "Error loading config file"
 		exit()
-	getAppVersion()
 	if not getData(config):
 		exit()
 	verifyinfo()
