@@ -34,7 +34,7 @@ You will need to install the following modules before running the script:- ``` r
 So, you can run these commands from the command prompt (assuming you have installed python 2.7 and added the proper folders to PATH):-
 
 ```
-pip install requests names click
+pip install requests names click numpy
 ```
 
 ### Happy Account Generating !!!
