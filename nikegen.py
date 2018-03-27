@@ -105,14 +105,16 @@ def signup(email,name,password,country):
         sess.cookies["NIKE_COMMERCE_LANG_LOCALE"]="zh_CN"
         sess.cookies["nike_locale"]="cn/zh_cn"
         dob=str(random.randint(1990,1995))+"-"+str(random.randint(10,12))+"-"+str(random.randint(10,28))
+        uid=str(uuid.uuid4())
         if country=="US":
-            payload={"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}},"locale":"en_US","welcomeEmailTemplate":"TSD_PROF_MS_WELC_T0_GENERIC_V1.0","registrationSiteId":"nikedotcom","username":email,"firstName":nam[0],"lastName":nam[1],"dateOfBirth":dob,"country":"US","gender":"F","receiveEmail":True}
+            locale="en_US" 
         else:
-            payload={"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}},"locale":"en_US","welcomeEmailTemplate":"TSD_PROF_MS_WELC_T0_GENERIC_V1.0","registrationSiteId":"nikedotcom","username":email,"firstName":nam[0],"lastName":nam[1],"dateOfBirth":dob,"country":"GB","gender":"F","receiveEmail":True}
+            country="GB"
+            locale="en_GB"
+        payload={"country":country,"firstName":nam[0],"gender":"F","lastName":nam[1],"locale":locale,"password":password,"receiveEmail":False,"registrationSiteId":"nikedotcom","welcomeEmailTemplate":"TSD_PROF_COMM_WELCOME_V1.0","emailAddress":email,"dateOfBirth":dob,"username":email,"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}}}
         getLock(prox)
         print "Signing up with email {0}\n".format(email),
-        uid=str(uuid.uuid4())
-        r=sess.post("https://unite.nike.com/join?appVersion=389&experienceVersion=325&uxid=com.nike.commerce.nikedotcom.web&locale=en_US&backendEnvironment=identity&browser=Google%20Inc.&os=undefined&mobile=false&native=false&visit=1&visitor="+uid,json=payload,verify=False,proxies={"https":prox},headers={"Referer":"https://www.nike.com/us/en_us","Origin":"https://www.nike.com","Content-Type":"text/plain"},timeout=30)
+        r=sess.post("https://unite.nike.com/access/users/v1?appVersion=389&experienceVersion=325&uxid=com.nike.commerce.nikedotcom.web&locale="+locale+"&backendEnvironment=identity&browser=Google%20Inc.&os=undefined&mobile=false&native=false&visit=2&visitor="+uid+"&language=en-US",json=payload,verify=False,proxies={"https":prox},headers={"Referer":"https://www.nike.com/"+country.lower()+"/"+locale.lower(),"Origin":"https://www.nike.com","Content-Type":"text/plain"},timeout=30)
         r.raise_for_status()
         getLock(prox)
         m_login_data = {'keepMeLoggedIn':True, 'client_id':'PbCREuPr3iaFANEDjtiEzXooFl7mXGQ7','ux_id':'com.nike.commerce.snkrs.droid','grant_type':'password','username':email,'password':password}
@@ -162,7 +164,6 @@ def signup(email,name,password,country):
             blocknumber("86"+NUMBER)
         raise e
     return password
-import traceback
 def dosignup(id,name,email,maxq,password,maxal,country):
     while maxq.qsize()>0:
         emr=generateemail(email,maxal)
@@ -181,7 +182,6 @@ def dosignup(id,name,email,maxq,password,maxal,country):
             time.sleep(5)
             continue
         except Exception as e:
-            traceback.print_exc()
             print e
             maxq.put(1)
             print "Error creating account\n",
