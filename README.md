@@ -45,3 +45,8 @@ The place where it all started: https://twitter.com/JonesUnk
 The nike+ account generator in action through a web interface:-
 
 http://serverdestroyers.com/
+
+
+## A Note About the Bot Detection
+
+In nikesensor.py file, there is a global variable named DEVICESIGNATURE is defined. This signature is not device specific, its actually times taken for different types of calculation like sin, cos, ..... It depends on CPU load as well. The same signature can be easily produced from multiple devices. But still, it will be very easy to block a signature. So I will update it to produce a properly randomized value soon.
