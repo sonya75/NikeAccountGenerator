@@ -1,0 +1,15 @@
+ua_parser/__init__.py,sha256=VXsKMa1R6lCFXS99d7wWpb2E8dbXRSFocuxAt7FbDJg,20
+ua_parser/_regexes.py,sha256=Udd3bkB64fd8Aos-y6DQ_OBQU9uh1TMw-KNPk_mAwbQ,134476
+ua_parser/user_agent_parser.py,sha256=DVur3gvP6TPVpUDeYDtVqvqJkccpBnRvj0YPKbjl1q0,19325
+ua_parser/user_agent_parser_test.py,sha256=WYWQfHc1cR8SUjXomfIHALzrizBJtIPLAfgpyEUDGqE,9766
+ua_parser-0.7.3.dist-info/DESCRIPTION.rst,sha256=OCTuuN6LcWulhHS3d5rfjdsQtW22n7HENFRh6jC6ego,10
+ua_parser-0.7.3.dist-info/METADATA,sha256=HS8yUrV77UeT4qcHT6W2sEepZtrFSWcbZNYzVCN8c0k,1182
+ua_parser-0.7.3.dist-info/RECORD,,
+ua_parser-0.7.3.dist-info/WHEEL,sha256=5wvfB7GvgZAbKBSE9uX9Zbi6LCL-_KgezgHblXhCRnM,113
+ua_parser-0.7.3.dist-info/metadata.json,sha256=4iiHSqIr3zu9BzdrfyZfm-kQDKz7k3odiYURWEbmuHI,1216
+ua_parser-0.7.3.dist-info/top_level.txt,sha256=SmuVcbgdjvq6yoTXedEHTi904KvxJOMW5ZOa--3DQzQ,10
+ua_parser-0.7.3.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ua_parser/user_agent_parser.pyc,,
+ua_parser/__init__.pyc,,
+ua_parser/_regexes.pyc,,
+ua_parser/user_agent_parser_test.pyc,,

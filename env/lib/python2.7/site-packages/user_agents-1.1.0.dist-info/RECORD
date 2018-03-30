@@ -1,0 +1,15 @@
+user_agents/__init__.py,sha256=bfTUJzC_nyyoiCPSI9HWXGzzMonh5w2kMMDhQcT99yQ,48
+user_agents/compat.py,sha256=1FbbKk2501B0fYGXxLOYGt6bKMIzewiDBX3eLSRyhn4,243
+user_agents/parsers.py,sha256=c8F1d-kx1mPUYtD82PPfz95Hssejvv4k3XQwOqZjwn8,7813
+user_agents/tests.py,sha256=0FwTkPYUPMXgA0yPQVmlrtZ74EjI1L1wtb9EEXh3pq0,14692
+user_agents-1.1.0.dist-info/DESCRIPTION.rst,sha256=MgS4NvUcvxvyJVJf6PkrUpc1S6vssqycSRO4ir4Swsc,6753
+user_agents-1.1.0.dist-info/METADATA,sha256=jayg-pg3r3f-P_77aviQaqZRczXllaI9C15o2uQO5ag,7755
+user_agents-1.1.0.dist-info/RECORD,,
+user_agents-1.1.0.dist-info/WHEEL,sha256=JTb7YztR8fkPg6aSjc571Q4eiVHCwmUDlX8PhuuqIIE,92
+user_agents-1.1.0.dist-info/metadata.json,sha256=TzedKV4BZfuxmphR1QNxl5i6i9QAp19HIEYczAgDZAA,1124
+user_agents-1.1.0.dist-info/top_level.txt,sha256=zjLro7WPhO9c1Fgwdj7f-LVroJEeE26GO7oc40FBLVY,12
+user_agents-1.1.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+user_agents/tests.pyc,,
+user_agents/parsers.pyc,,
+user_agents/compat.pyc,,
+user_agents/__init__.pyc,,
