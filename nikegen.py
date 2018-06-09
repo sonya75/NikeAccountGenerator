@@ -145,11 +145,10 @@ def signup(email,name,password,country):
         getLock(prox)
         m_login_data = {'keepMeLoggedIn':True, 'client_id':'PbCREuPr3iaFANEDjtiEzXooFl7mXGQ7','ux_id':'com.nike.commerce.snkrs.droid','grant_type':'password','username':email,'password':password}
         e=sess.post('https://api.nike.com/idn/shim/oauth/2.0/token',json=m_login_data,verify=False,proxies={"https":prox},timeout=30)
-        print e.text
         TOKEN=json.loads(e.text)['access_token']
         sess1=sess
     sess=getsession(prox)
-    reverify(sess1)
+    reverify(sess1,prox)
     ok=False
     NUMBER=None
     for i in range(0,60):
