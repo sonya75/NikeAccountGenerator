@@ -1,3 +1,10 @@
+from ssl import SSLSocket,PROTOCOL_TLSv1_1
+oldinit=SSLSocket.__init__
+def newinit(*args,**kwargs):
+	kwargs["_context"]=None
+	kwargs["ssl_version"]=PROTOCOL_TLSv1_1
+	return oldinit(*args,**kwargs)
+SSLSocket.__init__=newinit
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -50,10 +57,10 @@ def getsession(prox):
     try:
         bot=BotDetector()
         payload="{\"sensor_data\":\""+bot.generatesensordata()+"\"}"
-        d=sess.post("https://www.nike.com/_bm/_data",headers={"Connection":"keep-alive","X-NewRelic-ID":"VQYGVF5SCBAJVlFaAQIH","Origin":"https://www.nike.com","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36","Content-Type":"application/json","Accept":"*/*","Referer":"https://www.nike.com/us/en_us","Accept-Encoding":"gzip, deflate, br","Accept-Language":"en-US,en;q=0.9,ms;q=0.8"},proxies={"https":prox},data=payload,verify=False,timeout=15)
+        d=sess.post("https://www.nike.com/_bm/_data",headers={"Connection":"keep-alive","X-NewRelic-ID":"VQYGVF5SCBAJVlFaAQIH","Origin":"https://www.nike.com","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36","Content-Type":"application/json","Accept":"*/*","Referer":"https://www.nike.com/us/en_us","Accept-Encoding":"gzip, deflate, br","Accept-Language":"en-US,en;q=0.9,ms;q=0.8"},proxies={"https":prox},data=payload,verify=False,timeout=15)
         bot.cookie=sess.cookies["_abck"]
         payload="{\"sensor_data\":\""+bot.generatesensordata1()+"\"}"
-        d=sess.post("https://www.nike.com/_bm/_data",headers={"Connection":"keep-alive","X-NewRelic-ID":"VQYGVF5SCBAJVlFaAQIH","Origin":"https://www.nike.com","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36","Content-Type":"application/json","Accept":"*/*","Referer":"https://www.nike.com/us/en_us","Accept-Encoding":"gzip, deflate, br","Accept-Language":"en-US,en;q=0.9,ms;q=0.8"},proxies={"https":prox},data=payload,verify=False,timeout=15)
+        d=sess.post("https://www.nike.com/_bm/_data",headers={"Connection":"keep-alive","X-NewRelic-ID":"VQYGVF5SCBAJVlFaAQIH","Origin":"https://www.nike.com","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36","Content-Type":"application/json","Accept":"*/*","Referer":"https://www.nike.com/us/en_us","Accept-Encoding":"gzip, deflate, br","Accept-Language":"en-US,en;q=0.9,ms;q=0.8"},proxies={"https":prox},data=payload,verify=False,timeout=15)
         if "~0~" in sess.cookies["_abck"]:
             print sess.cookies["_abck"]
             allLocks[prox].put(1,MININTERVAL)
@@ -62,6 +69,25 @@ def getsession(prox):
         print e
     allLocks[prox].put(1,MININTERVAL)
     return sess
+def reverify(sess,prox):
+    allLocks[prox].get()
+    try:
+        bot=BotDetector()
+        bot.cookie=sess.cookies["_abck"]
+        payload="{\"sensor_data\":\""+bot.generatesensordata1()+"\"}"
+        d=sess.post("https://www.nike.com/_bm/_data",headers={"Connection":"keep-alive","X-NewRelic-ID":"VQYGVF5SCBAJVlFaAQIH","Origin":"https://www.nike.com","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36","Content-type":"application/json","Accept":"*/*","Referer":"https://www.nike.com/us/en_us/","Accept-Encoding":"gzip, deflate, br","Accept-Language":"en-US,en;q=0.9,ms;q=0.8"},proxies={"https":prox},data=payload,verify=False,timeout=15)
+        if "~0~" in sess.cookies["_abck"]:
+            print repr(sess.cookies["_abck"])
+            allLocks[prox].put(1,MININTERVAL)
+            return sess
+    except:
+        pass
+    try:
+        sess.close()
+    except:
+        pass
+    allLocks[prox].put(1,MININTERVAL)
+    raise Exception("Error getting abck cookie")
 def generateemail(email,maxval=1,usedom=False):
     if email[0]=="@":
         return names.get_first_name()+str(random.randint(1,999999))+email
@@ -98,7 +124,7 @@ def signup(email,name,password,country):
     with MAINLOCKS[prox]:
         nam=name.split(' ')
         sess=getsession(prox)
-        sess.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36","Accept":"*/*","Accept-Encoding":"gzip, deflate, br","Accept-Language":"en-US,en;q=0.9,ms;q=0.8"})
+        sess.headers.update({"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36","Accept":"*/*","Accept-Encoding":"gzip, deflate, br","Accept-Language":"en-US,en;q=0.9,ms;q=0.8"})
         getLock(prox)
         sess.cookies["CONSUMERCHOICE"]="cn/zh_cn"
         sess.cookies["NIKE_COMMERCE_COUNTRY"]="CN"
@@ -111,16 +137,19 @@ def signup(email,name,password,country):
         else:
             country="GB"
             locale="en_GB"
-        payload={"country":country,"firstName":nam[0],"gender":"F","lastName":nam[1],"locale":locale,"password":password,"receiveEmail":False,"registrationSiteId":"nikedotcom","welcomeEmailTemplate":"TSD_PROF_COMM_WELCOME_V1.0","emailAddress":email,"dateOfBirth":dob,"username":email,"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}}}
+        payload={"country":country,"firstName":nam[0],"gender":"F","lastName":nam[1],"locale":locale,"password":password,"receiveEmail":False,"registrationSiteId":"nikedotcom","welcomeEmailTemplate":"TSD_PROF_MS_WELC_T0_GENERIC_V1.0","emailAddress":email,"dateOfBirth":dob,"username":email,"account":{"email":email,"passwordSettings":{"password":password,"passwordConfirm":password}}}
         getLock(prox)
         print "Signing up with email {0}\n".format(email),
-        r=sess.post("https://unite.nike.com/access/users/v1?appVersion=389&experienceVersion=325&uxid=com.nike.commerce.nikedotcom.web&locale="+locale+"&backendEnvironment=identity&browser=Google%20Inc.&os=undefined&mobile=false&native=false&visit=2&visitor="+uid+"&language=en-US",json=payload,verify=False,proxies={"https":prox},headers={"Referer":"https://www.nike.com/"+country.lower()+"/"+locale.lower(),"Origin":"https://www.nike.com","Content-Type":"text/plain"},timeout=30)
+        r=sess.post("https://unite.nike.com/access/users/v1?appVersion=435&experienceVersion=361&uxid=com.nike.commerce.nikedotcom.web&locale="+locale+"&backendEnvironment=identity&browser=Google%20Inc.&os=undefined&mobile=false&native=false&visit=2&visitor="+uid+"&language=en-US",json=payload,verify=False,proxies={"https":prox},headers={"Referer":"https://www.nike.com/"+country.lower()+"/"+locale.lower(),"Origin":"https://www.nike.com","Content-Type":"application/json"},timeout=30)
         r.raise_for_status()
         getLock(prox)
         m_login_data = {'keepMeLoggedIn':True, 'client_id':'PbCREuPr3iaFANEDjtiEzXooFl7mXGQ7','ux_id':'com.nike.commerce.snkrs.droid','grant_type':'password','username':email,'password':password}
         e=sess.post('https://api.nike.com/idn/shim/oauth/2.0/token',json=m_login_data,verify=False,proxies={"https":prox},timeout=30)
+        print e.text
         TOKEN=json.loads(e.text)['access_token']
         sess1=sess
+    sess=getsession(prox)
+    reverify(sess1)
     ok=False
     NUMBER=None
     for i in range(0,60):

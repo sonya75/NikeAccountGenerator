@@ -34,7 +34,7 @@ You will need to install the following modules before running the script:- ``` r
 So, you can run these commands from the command prompt (assuming you have installed python 2.7 and added the proper folders to PATH):-
 
 ```
-pip install requests names click numpy user_agents
+pip install requests names click user_agents
 ```
 
 ### Happy Account Generating !!!
@@ -44,9 +44,14 @@ The place where it all started: https://twitter.com/JonesUnk
 
 The nike+ account generator in action through a web interface:-
 
-http://serverdestroyers.com/
+http://getsms.serverdestroyers.com/
 
 
 ## A Note About the Bot Detection
 
 In nikesensor.py file, there is a global variable named DEVICESIGNATURE is defined. This signature is not device specific, its actually times taken for different types of calculation like sin, cos, ..... It depends on CPU load as well. The same signature can be easily produced from multiple devices. But still, it will be very easy to block a signature. So I will update it to produce a properly randomized value soon.
+
+
+## SSL Version Trick To pass Bot Detection
+
+If the ssl protocol version is changed from TLS 1.2 to 1.1, Akamai lets it pass. This won't work if its spammed from one IP. Will probably not work from a lot of datacenter IPs. But will work with most residential proxies. Akamai can easily detect it, but for some reason it allows small amount of traffic from each IP and this can easily be used to create a lot of accounts easily using huge residential proxy pools.
