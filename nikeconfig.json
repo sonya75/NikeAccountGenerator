@@ -10,5 +10,7 @@
 	"maxthreads":10,
 	"proxyfilename":"proxylist.txt",
 	"nikeaccountcountry":"US",
-	"minintervalbetweenrequests":1
+	"minintervalbetweenrequests":1,
+	"getsmsthreadlimit":100,
+	"sslversion":3
 }

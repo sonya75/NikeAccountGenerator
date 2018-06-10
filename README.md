@@ -55,3 +55,8 @@ In nikesensor.py file, there is a global variable named DEVICESIGNATURE is defin
 ## SSL Version Trick To pass Bot Detection
 
 If the ssl protocol version is changed from TLS 1.2 to 1.1, Akamai lets it pass. This won't work if its spammed from one IP. Will probably not work from a lot of datacenter IPs. But will work with most residential proxies. Akamai can easily detect it, but for some reason it allows small amount of traffic from each IP and this can easily be used to create a lot of accounts easily using huge residential proxy pools.
+
+## Updates
+  * Added the option to switch between TLS v1 and TLS v1.1 using nikeconfig.json.
+  * It can handle getsmscode requests limit per 5 seconds now.
+  * Added the code to properly block numbers after they have been used.

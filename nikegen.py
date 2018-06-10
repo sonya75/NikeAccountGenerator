@@ -1,8 +1,8 @@
-from ssl import SSLSocket,PROTOCOL_TLSv1_1
+from ssl import SSLSocket
 oldinit=SSLSocket.__init__
 def newinit(*args,**kwargs):
 	kwargs["_context"]=None
-	kwargs["ssl_version"]=PROTOCOL_TLSv1_1
+	kwargs["ssl_version"]=SSLVERSION
 	return oldinit(*args,**kwargs)
 SSLSocket.__init__=newinit
 import requests
@@ -31,18 +31,56 @@ def getLock(prox):
     global MININTERVAL
     allLocks[prox].get()
     allLocks[prox].put(1,MININTERVAL)
+getsmsqueue=TimedQueue()
+def getsmslock():
+	getsmsqueue.get()
+	getsmsqueue.put(1,5)
+def _blocknumber():
+    sess=requests.session()
+    v={}
+    while True:
+        while True:
+            try:
+                yu=BLOCKQUEUE.get_nowait()
+                v[yu]=1
+                try:
+                    sess.post("http://www.getsmscode.com/do.php",data={"action":"addblack","username":GETSMSEMAIL,"token":GETSMSTOKEN,"pid":"462","mobile":yu},timeout=30)
+                    print "Blocking {0}\n".format(yu),
+                except:
+                    pass
+            except:
+                break
+        if len(v)==0:
+            yu=BLOCKQUEUE.get()
+            v[yu]=1
+            try:
+                sess.post("http://www.getsmscode.com/do.php",data={"action":"addblack","username":GETSMSEMAIL,"token":GETSMSTOKEN,"pid":"462","mobile":yu},timeout=30)
+                print "Blocking {0}\n".format(yu),
+            except:
+                pass
+            continue
+        try:
+            mobilelist=sess.post("http://www.getsmscode.com/do.php",data={"action":"mobilelist","username":GETSMSEMAIL,"token":GETSMSTOKEN},timeout=30).text
+            for p in v.keys():
+                if p not in mobilelist:
+                    if v[p]>=10:
+                        v.pop(p,None)
+                    else:
+                        v[p]+=1
+                else:
+                    try:
+                        sess.post("http://www.getsmscode.com/do.php",data={"action":"addblack","username":GETSMSEMAIL,"token":GETSMSTOKEN,"pid":"462","mobile":p},timeout=30)
+                        print "Blocking {0}\n".format(p),
+                    except:
+                        pass
+        except:
+            pass
+        time.sleep(1)
+BLOCKQUEUE=Queue.Queue()
+for i in range(0,20):
+    Thread(target=_blocknumber).start()
 def blocknumber(num):
-    try:
-        getsmssession.post("http://www.getsmscode.com/do.php",data={"action":"addblack","username":GETSMSEMAIL,"token":GETSMSTOKEN,"pid":"462","mobile":num})
-    except Exception as e:
-        print "{0}\n".format(e),
-def blockall():
-	print "Blocking all current numbers"
-	m=getsmssession.post("http://www.getsmscode.com/do.php",data={"action":"mobilelist","username":GETSMSEMAIL,"token":GETSMSTOKEN})
-	n=m.text.split(',')
-	for p in n:
-		print "Blocking {0}\n".format(p),
-		blocknumber(p.split("|")[0])
+    BLOCKQUEUE.put(num)
 def verifyinfo():
 	m=getsmssession.post("http://www.getsmscode.com/do.php",data={"action":"login","username":GETSMSEMAIL,"token":GETSMSTOKEN})
 	n=m.text.split("|")
@@ -68,7 +106,7 @@ def getsession(prox):
     except Exception as e:
         print e
     allLocks[prox].put(1,MININTERVAL)
-    return sess
+    raise Exception("Error getting cookie")
 def reverify(sess,prox):
     allLocks[prox].get()
     try:
@@ -108,6 +146,7 @@ def generateemail(email,maxval=1,usedom=False):
     a+="@"+em[-1]
     return a
 def getnumber():
+    getsmslock()
     d=getsmssession.post("http://www.getsmscode.com/do.php",data={"action":"getmobile","username":GETSMSEMAIL,"token":GETSMSTOKEN,"pid":"462"})
     return d.text
 def getcode(number):
@@ -165,7 +204,7 @@ def signup(email,name,password,country):
                 print e
             except:
                 pass
-        time.sleep(5)
+        time.sleep(2)
     if not ok:
         raise Exception("Didn't receive number in time")
     try:
@@ -191,6 +230,7 @@ def signup(email,name,password,country):
         if NUMBER!=None:
             blocknumber("86"+NUMBER)
         raise e
+    blocknumber("86"+NUMBER)
     return password
 def dosignup(id,name,email,maxq,password,maxal,country):
     while maxq.qsize()>0:
@@ -256,7 +296,7 @@ def verifyPassword(password):
 	except TypeError:
 		raise Exception("Enter a proper password")
 def getData(x):
-	global GETSMSEMAIL,GETSMSTOKEN,NAME,MAINEMAIL,PASSWORD,MAX,SAVETOFILE,MAXTHREADS,MININTERVAL,PROXYLIST,COUNTRY,USEDOMAIN
+	global GETSMSEMAIL,GETSMSTOKEN,NAME,MAINEMAIL,PASSWORD,MAX,SAVETOFILE,MAXTHREADS,MININTERVAL,PROXYLIST,COUNTRY,USEDOMAIN,GETSMSTHREADLIMIT,SSLVERSION
 	try:
 		GETSMSEMAIL=x["getsmsemail"]
 	except:
@@ -318,6 +358,20 @@ def getData(x):
 		print "Enter a proper value for the minimum number of seconds between two requests from same IP, recommended value: 1"
 		exit()
 	try:
+		GETSMSTHREADLIMIT=int(x["getsmsthreadlimit"])
+		if GETSMSTHREADLIMIT<=0:
+			raise Exception
+	except:
+		print "Enter a proper value for the getsmscode thread limit"
+		exit()
+	try:
+		SSLVERSION=int(x["sslversion"])
+		if SSLVERSION not in [3,4]:
+			raise Exception
+	except:
+		print "Enter proper value for SSL Version, 3 for TLS v1 and 4 for TLS v1.1"
+		exit()
+	try:
 		PROXYFILENAME=x["proxyfilename"]
 		PROXS=open(PROXYFILENAME,'r').read().split('\n')
 		PROXYLIST=[p.strip() for p in PROXS if p.strip()!='']
@@ -351,6 +405,8 @@ def getData(x):
 	print "Maximum number of threads: {0}".format(MAXTHREADS)
 	print "Minimum interval between two requests from same IP(in seconds): {0}".format(MININTERVAL)
 	print "Loading proxylist from: {0}".format(PROXYFILENAME)
+	print "Getsmscode thread limit: {0}".format(GETSMSTHREADLIMIT)
+	print "SSL version: {0}".format(["TLS v1","TLS v1.1"][SSLVERSION-3])
 	return click.confirm("Do you want to continue? ")
 if __name__=="__main__":
 	try:
@@ -361,5 +417,6 @@ if __name__=="__main__":
 	if not getData(config):
 		exit()
 	verifyinfo()
-	blockall()
+	for i in range(0,int(GETSMSTHREADLIMIT/2)):
+		getsmsqueue.put(1)
 	mainfunc(SAVETOFILE,NAME,MAINEMAIL,MAX,PASSWORD,COUNTRY)
