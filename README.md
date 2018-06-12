@@ -19,6 +19,8 @@ Script to generate verified Nike+ accounts using getsmscode.com
     * **proxyfilename** is the file where you want the script to load proxies from.
     * You can enter US or EU in the **nikeaccountcountry** field.
     * **minintervalbetweenrequests** is to specify the minimum interval between requests from the same IP, to be safe the default value is set to 1 second, you can change it to 0.5 if you want, but if you get banned, that's on you.
+    * **getsmsthreadlimit** is for the API thread limit in your getsmscode account.
+    * **sslversion** is to specify the SSL protocol version you wanna use, **3** for TLS v1 and **4** is for TLS v1.1
 
 ## Proxy File format
 
