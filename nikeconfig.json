@@ -12,5 +12,5 @@
 	"nikeaccountcountry":"US",
 	"minintervalbetweenrequests":1,
 	"getsmsthreadlimit":100,
-	"sslversion":3
+	"sslversion":4
 }
