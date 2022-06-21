@@ -3,7 +3,7 @@ chardet==3.0.4
 click==6.7
 idna==2.6
 names==0.3.0
-numpy==1.14.2
+numpy==1.22.0
 requests==2.18.4
 ua-parser==0.7.3
 urllib3==1.22
